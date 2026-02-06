@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: portafolio-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: portafolio_db
+      POSTGRES_USER: portafolio_user
+      POSTGRES_PASSWORD: portafolio123
+    ports:
+      - "55432:5432"
+    volumes:
+      - portafolio_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  portafolio_postgres_data:
