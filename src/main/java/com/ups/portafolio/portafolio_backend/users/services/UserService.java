@@ -1,11 +1,10 @@
 package com.ups.portafolio.portafolio_backend.users.services;
 
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import com.ups.portafolio.portafolio_backend.users.entities.UserEntity;
 import com.ups.portafolio.portafolio_backend.users.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,9 +12,12 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder; 
 
     public UserEntity createUser(UserEntity user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword())); 
         return userRepository.save(user);
     }
 
@@ -24,12 +26,10 @@ public class UserService {
     }
 
     public UserEntity getUserById(UUID id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        return userRepository.findById(id).orElse(null);
     }
 
     public UserEntity getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        return userRepository.findByEmail(email).orElse(null);
     }
 }

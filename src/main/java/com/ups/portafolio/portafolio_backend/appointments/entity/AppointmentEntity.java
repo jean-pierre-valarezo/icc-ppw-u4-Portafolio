@@ -1,4 +1,4 @@
-package com.ups.portafolio.portafolio_backend.users.entities;
+package com.ups.portafolio.portafolio_backend.appointments.entity;
 
 
 import jakarta.persistence.*;
@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 
+import com.ups.portafolio.portafolio_backend.users.entities.UserEntity;
+
 @Entity
 @Table(name = "appointments")
 @Getter
@@ -16,7 +18,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
 public class AppointmentEntity {
      @Id
     @GeneratedValue
