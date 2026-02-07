@@ -15,12 +15,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
-    private final CustomUserDetailsService customUserDetailsService;
+    private final org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(customUserDetailsService);
-        
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
+    
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
