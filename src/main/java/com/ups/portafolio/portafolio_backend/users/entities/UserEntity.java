@@ -16,6 +16,10 @@ import java.util.UUID;
 @Builder
 public class UserEntity {
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean active = true;
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
