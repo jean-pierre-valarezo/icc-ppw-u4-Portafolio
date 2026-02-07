@@ -1,6 +1,6 @@
 package com.ups.portafolio.portafolio_backend.users.entities;
 
-import com.ups.portafolio.portafolio_backend.projects.entities.ProjectEntity; // Importa Proyectos
+import com.ups.portafolio.portafolio_backend.projects.entities.ProjectEntity; 
 import jakarta.persistence.*;
 import lombok.*;
 
