@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import com.ups.portafolio.portafolio_backend.appointments.dtos.CreateAppointmentDto;
 import com.ups.portafolio.portafolio_backend.appointments.entity.AppointmentEntity;
 import com.ups.portafolio.portafolio_backend.appointments.services.AppointmentService;
-import com.ups.portafolio.portafolio_backend.users.entities.UserEntity;
 import com.ups.portafolio.portafolio_backend.users.services.UserDetailsImpl;
 
 import java.time.LocalDate;
