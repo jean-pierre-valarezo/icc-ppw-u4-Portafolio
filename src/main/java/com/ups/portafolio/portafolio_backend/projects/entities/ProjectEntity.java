@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import com.ups.portafolio.portafolio_backend.schedules.entity.ScheduleEntity;
 import com.ups.portafolio.portafolio_backend.users.entities.UserEntity;
 
 @Entity
