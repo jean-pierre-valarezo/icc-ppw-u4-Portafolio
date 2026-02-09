@@ -50,4 +50,27 @@ public class AppointmentController {
 
         return ResponseEntity.ok(appointmentService.getMyAppointments(currentUser.getId()));
     }
+
+    @GetMapping("/incoming")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'ROLE_ADMIN', 'PROGRAMMER', 'ROLE_PROGRAMMER')")
+    public ResponseEntity<List<AppointmentEntity>> getIncomingAppointments(
+            Authentication authentication 
+    ) {
+        String email = authentication.getName();
+
+        UserEntity currentUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        return ResponseEntity.ok(appointmentService.getIncomingAppointments(currentUser.getId()));
+    }
+
+    @PutMapping("/{appointmentId}/status")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'ROLE_ADMIN', 'PROGRAMMER', 'ROLE_PROGRAMMER')")
+    public ResponseEntity<AppointmentEntity> updateStatus(
+            @PathVariable UUID appointmentId,
+            @RequestBody Map<String, String> payload 
+    ) {
+        String newStatus = payload.get("status");
+        return ResponseEntity.ok(appointmentService.updateStatus(appointmentId, newStatus));
+    }
 }

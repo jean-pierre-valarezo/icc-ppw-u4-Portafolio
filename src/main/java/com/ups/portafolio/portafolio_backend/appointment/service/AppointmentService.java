@@ -55,4 +55,23 @@ public class AppointmentService {
     public List<AppointmentEntity> getMyAppointments(UUID clientId) {
         return appointmentRepository.findByClientId(clientId);
     }
+
+    public List<AppointmentEntity> getIncomingAppointments(UUID programmerId) {
+        return appointmentRepository.findByProgrammerId(programmerId);
+    }
+
+    public AppointmentEntity updateStatus(UUID appointmentId, String newStatus) {
+        AppointmentEntity appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+
+        appointment.setStatus(newStatus);
+
+        if ("REJECTED".equalsIgnoreCase(newStatus)) {
+            ScheduleEntity schedule = appointment.getSchedule();
+            schedule.setStatus("AVAILABLE"); 
+            scheduleRepository.save(schedule);
+        }
+
+        return appointmentRepository.save(appointment);
+    }
 }
