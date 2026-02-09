@@ -66,5 +66,5 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
-        }
+        }        
     }

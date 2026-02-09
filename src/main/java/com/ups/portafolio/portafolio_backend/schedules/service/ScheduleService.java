@@ -33,12 +33,18 @@ public class ScheduleService {
             LocalTime start,
             LocalTime end
     ) {
-        if (!end.isAfter(start)) {
+
+        if (end == null || !end.isAfter(start)) {
+            end = start.plusHours(1);
+            System.out.println("AVISO: Se auto-corrigió la hora fin a: " + end);
+        }
+
+        /*if (!end.isAfter(start)) {
             throw new ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
                 "El horario no es válido"
             );
-        }
+        }*/
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -65,7 +71,7 @@ public class ScheduleService {
                 .date(date)
                 .startTime(start)
                 .endTime(end)
-                .available(true)
+                .status("AVAILABLE")
                 .build();
 
         return scheduleRepository.save(schedule);
@@ -77,5 +83,9 @@ public class ScheduleService {
 
     public void deleteSchedule(UUID scheduleId) {
         scheduleRepository.deleteById(scheduleId);
+    }
+
+    public List<ScheduleEntity> getAvailableSchedulesByProgrammer(UUID programmerId) {
+        return scheduleRepository.findByUserIdAndStatus(programmerId, "AVAILABLE");
     }
 }

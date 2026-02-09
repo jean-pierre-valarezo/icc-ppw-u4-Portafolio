@@ -33,4 +33,5 @@ public interface ScheduleRepository extends JpaRepository<ScheduleEntity, UUID> 
             @Param("start") LocalTime start,
             @Param("end") LocalTime end
     );
+    List<ScheduleEntity> findByUserIdAndStatus(UUID userId, String status);
 }

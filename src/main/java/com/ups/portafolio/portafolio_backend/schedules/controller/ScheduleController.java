@@ -21,7 +21,7 @@ public class ScheduleController {
 
     private final ScheduleService scheduleService;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('ROLE_ADMIN')")
     @PostMapping("/{userId}")
     public ResponseEntity<ScheduleEntity> create(
             @PathVariable UUID userId,
@@ -30,14 +30,14 @@ public class ScheduleController {
         return ResponseEntity.ok(
                 scheduleService.createSchedule(
                         userId,
-                        request.getDate(),        
+                        request.getDate(),
                         request.getStartTime(),
                         request.getEndTime()
                 )
         );
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PROGRAMMER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'ROLE_ADMIN', 'PROGRAMMER', 'ROLE_PROGRAMMER')")
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<ScheduleEntity>> getByUser(
             @PathVariable UUID userId
@@ -47,10 +47,20 @@ public class ScheduleController {
         );
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         scheduleService.deleteSchedule(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/programmer/{programmerId}/available")
+    public ResponseEntity<List<ScheduleEntity>> getAvailableByProgrammer(
+            @PathVariable UUID programmerId
+    ) {
+        return ResponseEntity.ok(
+                scheduleService.getAvailableSchedulesByProgrammer(programmerId)
+        );
     }
 }

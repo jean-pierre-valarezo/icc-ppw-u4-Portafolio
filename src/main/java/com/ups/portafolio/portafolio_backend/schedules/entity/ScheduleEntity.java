@@ -17,7 +17,7 @@ import java.util.UUID;
 public class ScheduleEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false)
@@ -29,7 +29,8 @@ public class ScheduleEntity {
     @Column(nullable = false)
     private LocalTime endTime;
 
-    private boolean available; 
+    @Column(nullable = false)
+    private String status = "AVAILABLE"; 
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
