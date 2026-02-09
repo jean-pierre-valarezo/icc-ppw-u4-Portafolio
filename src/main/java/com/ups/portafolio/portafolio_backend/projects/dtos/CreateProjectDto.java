@@ -1,18 +1,15 @@
 package com.ups.portafolio.portafolio_backend.projects.dtos;
 
-import java.util.List;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
 public class CreateProjectDto {
-    @NotBlank(message = "El título es obligatorio")
     private String title;
-
-    @NotBlank(message = "La descripción es obligatoria")
     private String description;
-
+    private String projectType;   
+    private String participation;  
+    private String technologies;   
+    private String repositoryUrl;  
+    private String demoUrl;       
     private String imageUrl;
-
-    private List<String> technologies; 
 }

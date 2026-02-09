@@ -1,6 +1,5 @@
 package com.ups.portafolio.portafolio_backend.projects.dtos;
 
-import java.util.List;
 import java.util.UUID;
 
 import lombok.Builder;
@@ -12,7 +11,11 @@ public class ProjectResponseDto {
     private UUID id;
     private String title;
     private String description;
+    private String projectType;
+    private String participation;
+    private String technologies;
+    private String repositoryUrl;
+    private String demoUrl;
     private String imageUrl;
-    private String programmerName; 
-    private List<String> technologies;
+    private String programmerName;
 }

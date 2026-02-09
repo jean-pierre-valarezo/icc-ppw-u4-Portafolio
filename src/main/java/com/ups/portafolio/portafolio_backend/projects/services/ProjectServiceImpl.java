@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.ups.portafolio.portafolio_backend.projects.dtos.CreateProjectDto;
@@ -30,33 +31,24 @@ import lombok.RequiredArgsConstructor;
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
-    private final UserRepository userRepository;
-    private final TechnologyRepository technologyRepository;
+    private final UserRepository userRepository; 
 
     @Override
     @Transactional
-    public ProjectResponseDto create(CreateProjectDto dto, UserDetailsImpl currentUser) {
-        UserEntity programmer = userRepository.findById(currentUser.getId())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
-       
-        Set<TechnologyEntity> techEntities = new HashSet<>();
-        if (dto.getTechnologies() != null) {
-            for (String techName : dto.getTechnologies()) {
-                TechnologyEntity tech = technologyRepository.findByName(techName)
-                        .orElseGet(() -> technologyRepository.save(
-                                TechnologyEntity.builder().name(techName).build()
-                        ));
-                techEntities.add(tech);
-            }
-        }
+    public ProjectResponseDto create(CreateProjectDto dto, UserDetails currentUser) {
+        UserEntity programmer = userRepository.findByEmail(currentUser.getUsername())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + currentUser.getUsername()));
 
         ProjectEntity project = ProjectEntity.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
+                .projectType(dto.getProjectType())       
+                .participation(dto.getParticipation())   
+                .technologies(dto.getTechnologies())     
+                .repositoryUrl(dto.getRepositoryUrl())  
+                .demoUrl(dto.getDemoUrl())               
                 .imageUrl(dto.getImageUrl())
                 .programmer(programmer)
-                .technologies(techEntities)
                 .build();
 
         return mapToDto(projectRepository.save(project));
@@ -64,37 +56,40 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ProjectResponseDto> getMyProjects(String title, String tech, int page, int size, UserDetailsImpl currentUser) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+    public Page<ProjectResponseDto> getMyProjects(String title, int page, int size, UserDetails currentUser) {
+        UserEntity user = userRepository.findByEmail(currentUser.getUsername())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         
-        return projectRepository.search(currentUser.getId(), title, tech, pageable)
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        
+        return projectRepository.findByProgrammerId(user.getId(), pageable)
                 .map(this::mapToDto);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ProjectResponseDto> getPublicProjects(UUID userId, String title, String tech, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return projectRepository.search(userId, title, tech, pageable)
+    public Page<ProjectResponseDto> getPublicProjects(UUID userId, String title, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        
+        return projectRepository.findByProgrammerId(userId, pageable)
                 .map(this::mapToDto);
     }
 
     @Override
     @Transactional
-    public void delete(UUID id, UserDetailsImpl currentUser) {
+    public void delete(UUID id, UserDetails currentUser) {
         ProjectEntity project = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Proyecto no encontrado"));
 
         validateOwnership(project, currentUser);
-
         projectRepository.delete(project);
     }
 
-    private void validateOwnership(ProjectEntity project, UserDetailsImpl currentUser) {
+    private void validateOwnership(ProjectEntity project, UserDetails currentUser) {
         boolean isAdmin = currentUser.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                .anyMatch(a -> a.getAuthority().equals("ADMIN")); 
 
-        if (!isAdmin && !project.getProgrammer().getId().equals(currentUser.getId())) {
+        if (!isAdmin && !project.getProgrammer().getEmail().equals(currentUser.getUsername())) {
             throw new AccessDeniedException("No puedes eliminar este proyecto porque no es tuyo.");
         }
     }
@@ -104,11 +99,13 @@ public class ProjectServiceImpl implements ProjectService {
                 .id(entity.getId())
                 .title(entity.getTitle())
                 .description(entity.getDescription())
+                .projectType(entity.getProjectType())
+                .participation(entity.getParticipation())
+                .technologies(entity.getTechnologies()) 
+                .repositoryUrl(entity.getRepositoryUrl())
+                .demoUrl(entity.getDemoUrl())
                 .imageUrl(entity.getImageUrl())
                 .programmerName(entity.getProgrammer().getName())
-                .technologies(entity.getTechnologies().stream()
-                        .map(TechnologyEntity::getName)
-                        .collect(Collectors.toList()))
                 .build();
     }
 }
