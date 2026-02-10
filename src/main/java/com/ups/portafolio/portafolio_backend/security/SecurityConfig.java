@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -36,7 +37,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
             
             .authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/auth/**").permitAll()
-        
+            .requestMatchers(HttpMethod.GET, "/api/projects/**").permitAll()
             .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/schedules/**").permitAll() 
             .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/users/**").permitAll()
         
