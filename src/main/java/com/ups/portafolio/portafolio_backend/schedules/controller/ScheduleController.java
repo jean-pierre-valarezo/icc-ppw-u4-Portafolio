@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/schedules")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
@@ -54,13 +54,12 @@ public class ScheduleController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/programmer/{programmerId}/available")
-    public ResponseEntity<List<ScheduleEntity>> getAvailableByProgrammer(
-            @PathVariable UUID programmerId
-    ) {
+        public ResponseEntity<List<ScheduleEntity>> getAvailableByProgrammer(
+                @PathVariable UUID programmerId
+        ) {
         return ResponseEntity.ok(
                 scheduleService.getAvailableSchedulesByProgrammer(programmerId)
         );
-    }
+        }
 }
