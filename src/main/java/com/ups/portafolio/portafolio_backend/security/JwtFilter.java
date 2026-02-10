@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,53 +27,49 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;
 
-        // 1. Verificamos si hay cabecera
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println(" FILTRO: No hay token o no empieza por Bearer");
+            System.out.println("🔎 FILTRO: Petición sin token (invitado). Pasando...");
             filterChain.doFilter(request, response);
             return;
         }
 
-        jwt = authHeader.substring(7);
         try {
+            jwt = authHeader.substring(7);
             userEmail = jwtUtil.extractUsername(jwt);
-            System.out.println(" FILTRO: Usuario extraído del token: " + userEmail);
-        } catch (Exception e) {
-            System.out.println(" FILTRO: Error al extraer usuario: " + e.getMessage());
-            filterChain.doFilter(request, response);
-            return;
-        }
+            System.out.println(" FILTRO: Token detectado para usuario: " + userEmail);
 
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                
+                try {
+                    UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-            // 2. Imprimimos los roles que vienen de la Base de Datos
-            System.out.println(" FILTRO: Roles en Base de Datos para " + userEmail + ": " + userDetails.getAuthorities());
-
-            if (jwtUtil.validateToken(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-                System.out.println(" FILTRO: Autenticación exitosa. Usuario puesto en contexto.");
-            } else {
-                System.out.println(" FILTRO: validateToken devolvió FALSE (Token inválido o expirado)");
+                    if (jwtUtil.validateToken(jwt, userDetails)) {
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                        System.out.println(" FILTRO: Usuario autenticado exitosamente.");
+                    }
+                } catch (Exception e) {
+                    System.out.println(" FILTRO: El usuario del token ya no existe (DB Reseteada). Ignorando token.");
+                }
             }
+        } catch (Exception e) {
+            System.out.println(" FILTRO: Token inválido o corrupto. Ignorando.");
         }
+
         filterChain.doFilter(request, response);
     }
-
-    
 }
