@@ -29,27 +29,33 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
         private final JwtFilter jwtFilter;
         private final AuthenticationProvider authenticationProvider; 
 
-        @Bean
-        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-            http
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(Customizer.withDefaults())
-            
-            .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/auth/**").permitAll()
-            .requestMatchers(HttpMethod.GET, "/api/projects/**").permitAll() 
-            .requestMatchers(HttpMethod.GET, "/api/schedules/**").permitAll() 
-            .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
-            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-            .anyRequest().authenticated()
-            )
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authenticationProvider(authenticationProvider)
-            
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+    .csrf(AbstractHttpConfigurer::disable)
+    .cors(Customizer.withDefaults())
+    
+    .authorizeHttpRequests(auth -> auth
+        .requestMatchers("/api/auth/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/projects/**").permitAll() 
+        .requestMatchers(HttpMethod.GET, "/api/schedules/**").permitAll() 
+        .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
+        //.requestMatchers("/api/programmer/**").hasRole("PROGRAMMER") 
+        //.anyRequest().authenticated()
+        
+        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
-            return http.build();
-        }
+        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+        
+        .anyRequest().authenticated()
+    )
+    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+    .authenticationProvider(authenticationProvider)
+    
+    .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+    return http.build();
+}
 
         @Bean
         public CorsConfigurationSource corsConfigurationSource() {

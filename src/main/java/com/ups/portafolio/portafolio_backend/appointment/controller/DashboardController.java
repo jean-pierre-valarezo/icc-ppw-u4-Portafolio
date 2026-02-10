@@ -2,6 +2,9 @@ package com.ups.portafolio.portafolio_backend.appointment.controller;
 
 import java.util.Map;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,39 +21,49 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/programmer/dashboard")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {"http://localhost:4200", "https://tu-app.onrender.com"}) 
 public class DashboardController {
+
     private final AppointmentService appointmentService;
     private final UserRepository userRepository;
 
     @GetMapping("/resumen")
-    public Map<String, Long> resumen(Authentication auth) {
-        String email = auth.getName();
-        UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow();
+    public ResponseEntity<Map<String, Long>> resumen(Authentication auth) {
+        if (auth == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        return Map.of(
+        UserEntity user = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Map<String, Long> estadisticas = Map.of(
                 "pendientes", appointmentService.countByProgrammerAndStatus(user.getId(), "PENDING"),
                 "aprobadas", appointmentService.countByProgrammerAndStatus(user.getId(), "ACCEPTED"),
                 "rechazadas", appointmentService.countByProgrammerAndStatus(user.getId(), "REJECTED")
         );
+        
+        return ResponseEntity.ok(estadisticas);
     }
-     @GetMapping("/reporte/pdf")
-    public ResponseEntity<byte[]> pdf() {
-        byte[] content = "Reporte de asesorías".getBytes();
+
+    @GetMapping("/reporte/pdf")
+    public ResponseEntity<byte[]> descargarPdf(Authentication auth) {
+        UserEntity user = userRepository.findByEmail(auth.getName()).orElseThrow();
+        
+        byte[] pdfBytes = appointmentService.generatePdfReport(user.getId());
 
         return ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=reporte.pdf")
-                .body(content);
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=Reporte_Asesorias.pdf")
+                .body(pdfBytes);
     }
-
 
     @GetMapping("/reporte/excel")
-    public ResponseEntity<byte[]> excel() {
-        byte[] content = "Reporte Excel".getBytes();
+    public ResponseEntity<byte[]> descargarExcel(Authentication auth) {
+        UserEntity user = userRepository.findByEmail(auth.getName()).orElseThrow();
+        
+        byte[] excelBytes = appointmentService.generateExcelReport(user.getId());
 
         return ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=reporte.xlsx")
-                .body(content);
+                .header(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=Reporte_Asesorias.xlsx")
+                .body(excelBytes);
     }
 }

@@ -2,10 +2,7 @@ package com.ups.portafolio.portafolio_backend.appointment.service;
 
 import java.util.List;
 import java.util.UUID;
-
-
 import org.springframework.stereotype.Service;
-
 
 import com.ups.portafolio.portafolio_backend.appointment.entity.AppointmentEntity;
 import com.ups.portafolio.portafolio_backend.appointment.repository.AppointmentRepository;
@@ -13,9 +10,22 @@ import com.ups.portafolio.portafolio_backend.schedules.entity.ScheduleEntity;
 import com.ups.portafolio.portafolio_backend.schedules.repository.ScheduleRepository;
 import com.ups.portafolio.portafolio_backend.users.entities.UserEntity;
 import com.ups.portafolio.portafolio_backend.users.repository.UserRepository;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import com.lowagie.text.Document;
+import com.lowagie.text.Font;
+import com.lowagie.text.FontFactory;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 
 @Service
 @RequiredArgsConstructor
@@ -79,7 +89,64 @@ public class AppointmentService {
     }
 
     public long countByProgrammerAndStatus(UUID programmerId, String status) {
-    return appointmentRepository.countByProgrammerIdAndStatus(programmerId, status);
-}
+        return appointmentRepository.countByProgrammerIdAndStatus(programmerId, status);
+    }
 
+    public byte[] generatePdfReport(UUID programmerId) {
+        List<AppointmentEntity> appointments = appointmentRepository.findByProgrammerId(programmerId);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        
+        Document document = new Document();
+        PdfWriter.getInstance(document, out);
+        document.open();
+
+        Font fontTitle = FontFactory.getFont(FontFactory.HELVETICA_BOLD);
+        fontTitle.setSize(18);
+        Paragraph title = new Paragraph("Reporte de Asesorías Recibidas", fontTitle);
+        title.setAlignment(Paragraph.ALIGN_CENTER);
+        document.add(title);
+        document.add(new Paragraph(" "));
+
+        PdfPTable table = new PdfPTable(3);
+        table.addCell("Cliente");
+        table.addCell("Motivo");
+        table.addCell("Estado");
+
+        for (AppointmentEntity app : appointments) {
+            table.addCell(app.getClient().getName());
+            table.addCell(app.getTopic());
+            table.addCell(app.getStatus());
+        }
+
+        document.add(table);
+        document.close();
+        
+        return out.toByteArray();
+    }
+
+    public byte[] generateExcelReport(UUID programmerId) {
+        List<AppointmentEntity> appointments = appointmentRepository.findByProgrammerId(programmerId);
+        
+        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Sheet sheet = workbook.createSheet("Asesorías");
+
+            Row headerRow = sheet.createRow(0);
+            headerRow.createCell(0).setCellValue("Cliente");
+            headerRow.createCell(1).setCellValue("Motivo");
+            headerRow.createCell(2).setCellValue("Estado");
+
+            int rowIdx = 1;
+            for (AppointmentEntity app : appointments) {
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(app.getClient().getName());
+                row.createCell(1).setCellValue(app.getTopic());
+                row.createCell(2).setCellValue(app.getStatus());
+            }
+
+            workbook.write(out);
+            return out.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException("Error al generar Excel", e);
+        }
+    }
 }
