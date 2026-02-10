@@ -3,9 +3,9 @@ package com.ups.portafolio.portafolio_backend.appointment.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.http.HttpStatus;
+
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+
 
 import com.ups.portafolio.portafolio_backend.appointment.entity.AppointmentEntity;
 import com.ups.portafolio.portafolio_backend.appointment.repository.AppointmentRepository;
@@ -24,6 +24,9 @@ public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final ScheduleRepository scheduleRepository;
     private final UserRepository userRepository;
+
+
+    
 
     @Transactional
     public AppointmentEntity bookAppointment(UUID scheduleId, UUID clientId, String topic) {
@@ -74,4 +77,9 @@ public class AppointmentService {
 
         return appointmentRepository.save(appointment);
     }
+
+    public long countByProgrammerAndStatus(UUID programmerId, String status) {
+    return appointmentRepository.countByProgrammerIdAndStatus(programmerId, status);
+}
+
 }

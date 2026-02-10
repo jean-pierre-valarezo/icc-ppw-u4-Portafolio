@@ -36,7 +36,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // 1. Verificamos si hay cabecera
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("❌ FILTRO: No hay token o no empieza por Bearer");
+            System.out.println(" FILTRO: No hay token o no empieza por Bearer");
             filterChain.doFilter(request, response);
             return;
         }
@@ -44,9 +44,9 @@ public class JwtFilter extends OncePerRequestFilter {
         jwt = authHeader.substring(7);
         try {
             userEmail = jwtUtil.extractUsername(jwt);
-            System.out.println("🔍 FILTRO: Usuario extraído del token: " + userEmail);
+            System.out.println(" FILTRO: Usuario extraído del token: " + userEmail);
         } catch (Exception e) {
-            System.out.println("❌ FILTRO: Error al extraer usuario: " + e.getMessage());
+            System.out.println(" FILTRO: Error al extraer usuario: " + e.getMessage());
             filterChain.doFilter(request, response);
             return;
         }
@@ -55,7 +55,7 @@ public class JwtFilter extends OncePerRequestFilter {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
             // 2. Imprimimos los roles que vienen de la Base de Datos
-            System.out.println("👮 FILTRO: Roles en Base de Datos para " + userEmail + ": " + userDetails.getAuthorities());
+            System.out.println(" FILTRO: Roles en Base de Datos para " + userEmail + ": " + userDetails.getAuthorities());
 
             if (jwtUtil.validateToken(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -65,9 +65,9 @@ public class JwtFilter extends OncePerRequestFilter {
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-                System.out.println("✅ FILTRO: Autenticación exitosa. Usuario puesto en contexto.");
+                System.out.println(" FILTRO: Autenticación exitosa. Usuario puesto en contexto.");
             } else {
-                System.out.println("❌ FILTRO: validateToken devolvió FALSE (Token inválido o expirado)");
+                System.out.println(" FILTRO: validateToken devolvió FALSE (Token inválido o expirado)");
             }
         }
         filterChain.doFilter(request, response);

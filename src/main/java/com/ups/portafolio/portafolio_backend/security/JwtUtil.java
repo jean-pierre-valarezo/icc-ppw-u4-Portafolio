@@ -39,7 +39,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    // 🔐 NUEVO → leer roles correctamente
+   
     public List<String> extractRoles(String token) {
         Claims claims = extractAllClaims(token);
         return claims.get("role", List.class);

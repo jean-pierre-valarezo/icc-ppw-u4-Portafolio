@@ -14,4 +14,6 @@ public interface AppointmentRepository extends JpaRepository<AppointmentEntity, 
     List<AppointmentEntity> findByClientId(UUID clientId);
     
     List<AppointmentEntity> findByProgrammerId(UUID programmerId);
+
+    long countByProgrammerIdAndStatus(UUID programmerId, String status);
 }
