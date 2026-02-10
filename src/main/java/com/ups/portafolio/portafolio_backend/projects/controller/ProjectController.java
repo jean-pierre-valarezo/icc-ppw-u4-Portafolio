@@ -12,15 +12,21 @@ import com.ups.portafolio.portafolio_backend.projects.dtos.CreateProjectDto;
 import com.ups.portafolio.portafolio_backend.projects.dtos.ProjectResponseDto;
 import com.ups.portafolio.portafolio_backend.projects.services.ProjectService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/projects")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {"http://localhost:4200", "https://icc-ppw-u2-portafolio.onrender.com"})
 public class ProjectController {
 
     private final ProjectService projectService;
+
+    @GetMapping("/all")
+    public ResponseEntity<List<ProjectResponseDto>> getAll() {
+        return ResponseEntity.ok(projectService.getAllPublicProjects()); 
+    }
 
     @PostMapping
     public ResponseEntity<ProjectResponseDto> create(

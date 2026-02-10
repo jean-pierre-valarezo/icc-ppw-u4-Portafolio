@@ -37,14 +37,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
             
             .authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/auth/**").permitAll()
-            .requestMatchers(HttpMethod.GET, "/api/projects/**").permitAll()
-            .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/schedules/**").permitAll() 
-            .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/users/**").permitAll()
-        
-            .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/projects/**").permitAll() 
+            .requestMatchers(HttpMethod.GET, "/api/schedules/**").permitAll() 
+            .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
+            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .anyRequest().authenticated()
             )
-            
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider)
             

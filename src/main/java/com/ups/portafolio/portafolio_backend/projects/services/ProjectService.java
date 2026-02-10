@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.ups.portafolio.portafolio_backend.projects.dtos.CreateProjectDto;
 import com.ups.portafolio.portafolio_backend.projects.dtos.ProjectResponseDto;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface ProjectService {
@@ -17,4 +18,6 @@ public interface ProjectService {
     void delete(UUID id, UserDetails currentUser);
 
     Page<ProjectResponseDto> getPublicProjects(UUID userId, String title, int page, int size);
+
+    List<ProjectResponseDto> getAllPublicProjects();
 }

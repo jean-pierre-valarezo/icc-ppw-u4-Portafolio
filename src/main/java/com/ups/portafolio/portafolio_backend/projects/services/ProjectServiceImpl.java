@@ -1,6 +1,7 @@
 package com.ups.portafolio.portafolio_backend.projects.services;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -107,5 +108,15 @@ public class ProjectServiceImpl implements ProjectService {
                 .imageUrl(entity.getImageUrl())
                 .programmerName(entity.getProgrammer().getName())
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProjectResponseDto> getAllPublicProjects() {
+        List<ProjectEntity> projects = projectRepository.findAll();
+    
+        return projects.stream()
+            .map(this::mapToDto) 
+            .collect(Collectors.toList());
     }
 }
