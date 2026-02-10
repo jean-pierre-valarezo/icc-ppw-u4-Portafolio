@@ -73,4 +73,12 @@ public class AppointmentController {
         String newStatus = payload.get("status");
         return ResponseEntity.ok(appointmentService.updateStatus(appointmentId, newStatus));
     }
+
+    @GetMapping("/summary")
+    public ResponseEntity<?> getSummary(@AuthenticationPrincipal UserEntity user) {
+    return ResponseEntity.ok(
+        appointmentService.getAppointmentSummary(user.getId())
+    );
+}
+
 }

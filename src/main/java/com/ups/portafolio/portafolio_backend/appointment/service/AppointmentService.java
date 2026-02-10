@@ -1,6 +1,8 @@
 package com.ups.portafolio.portafolio_backend.appointment.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 
@@ -149,4 +151,15 @@ public class AppointmentService {
             throw new RuntimeException("Error al generar Excel", e);
         }
     }
+
+    public Map<String, Long> getAppointmentSummary(UUID programmerId) {
+    List<AppointmentEntity> appointments = appointmentRepository.findByProgrammerId(programmerId);
+    
+    Map<String, Long> summary = new HashMap<>();
+    summary.put("pendientes", appointments.stream().filter(a -> "PENDIENTE".equals(a.getStatus())).count());
+    summary.put("aprobadas", appointments.stream().filter(a -> "APROBADA".equals(a.getStatus())).count());
+    summary.put("rechazadas", appointments.stream().filter(a -> "RECHAZADA".equals(a.getStatus())).count());
+    
+    return summary;
+}
 }
