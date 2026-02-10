@@ -1,6 +1,8 @@
 package com.ups.portafolio.portafolio_backend.appointment.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -81,5 +83,21 @@ public class AppointmentService {
     public long countByProgrammerAndStatus(UUID programmerId, String status) {
     return appointmentRepository.countByProgrammerIdAndStatus(programmerId, status);
 }
+
+public Map<String, Long> getAppointmentSummary(UUID programmerId) {
+    Map<String, Long> summary = new HashMap<>();
+
+    summary.put("PENDIENTE",
+        appointmentRepository.countByProgrammerIdAndStatus(programmerId, "PENDING"));
+
+    summary.put("ACEPTADO",
+        appointmentRepository.countByProgrammerIdAndStatus(programmerId, "ACCEPTED"));
+
+    summary.put("RECHAZADO",
+        appointmentRepository.countByProgrammerIdAndStatus(programmerId, "REJECTED"));
+
+    return summary;
+}
+
 
 }
