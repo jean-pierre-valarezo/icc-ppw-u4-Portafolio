@@ -5,8 +5,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,7 +15,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-
 @Component
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
@@ -27,9 +24,9 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-            @NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
     ) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
@@ -37,7 +34,7 @@ public class JwtFilter extends OncePerRequestFilter {
         final String userEmail;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("🔎 FILTRO: Petición sin token (invitado). Pasando...");
+            System.out.println(" FILTRO: Petición sin token (invitado). Pasando...");
             filterChain.doFilter(request, response);
             return;
         }
@@ -63,7 +60,7 @@ public class JwtFilter extends OncePerRequestFilter {
                         System.out.println(" FILTRO: Usuario autenticado exitosamente.");
                     }
                 } catch (Exception e) {
-                    System.out.println(" FILTRO: El usuario del token ya no existe (DB Reseteada). Ignorando token.");
+                    System.out.println("FILTRO: El usuario del token ya no existe. Ignorando token.");
                 }
             }
         } catch (Exception e) {

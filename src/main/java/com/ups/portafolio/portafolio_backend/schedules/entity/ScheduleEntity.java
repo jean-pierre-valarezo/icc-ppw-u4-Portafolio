@@ -29,6 +29,7 @@ public class ScheduleEntity {
     @Column(nullable = false)
     private LocalTime endTime;
 
+    @Builder.Default
     @Column(nullable = false)
     private String status = "AVAILABLE"; 
 
