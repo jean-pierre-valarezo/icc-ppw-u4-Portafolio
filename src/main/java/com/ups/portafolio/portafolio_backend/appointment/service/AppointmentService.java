@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.ups.portafolio.portafolio_backend.appointment.entity.AppointmentEntity;
 import com.ups.portafolio.portafolio_backend.appointment.repository.AppointmentRepository;
+import com.ups.portafolio.portafolio_backend.email.EmailService;
 import com.ups.portafolio.portafolio_backend.schedules.entity.ScheduleEntity;
 import com.ups.portafolio.portafolio_backend.schedules.repository.ScheduleRepository;
 import com.ups.portafolio.portafolio_backend.users.entities.UserEntity;
@@ -36,9 +37,7 @@ public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final ScheduleRepository scheduleRepository;
     private final UserRepository userRepository;
-
-
-    
+    private EmailService emailService;
 
     @Transactional
     public AppointmentEntity bookAppointment(UUID scheduleId, UUID clientId, String topic) {
@@ -153,13 +152,27 @@ public class AppointmentService {
     }
 
     public Map<String, Long> getAppointmentSummary(UUID programmerId) {
-    List<AppointmentEntity> appointments = appointmentRepository.findByProgrammerId(programmerId);
+        List<AppointmentEntity> appointments = appointmentRepository.findByProgrammerId(programmerId);
     
-    Map<String, Long> summary = new HashMap<>();
-    summary.put("pendientes", appointments.stream().filter(a -> "PENDIENTE".equals(a.getStatus())).count());
-    summary.put("aprobadas", appointments.stream().filter(a -> "APROBADA".equals(a.getStatus())).count());
-    summary.put("rechazadas", appointments.stream().filter(a -> "RECHAZADA".equals(a.getStatus())).count());
+        Map<String, Long> summary = new HashMap<>();
+        summary.put("pendientes", appointments.stream().filter(a -> "PENDIENTE".equals(a.getStatus())).count());
+        summary.put("aprobadas", appointments.stream().filter(a -> "APROBADA".equals(a.getStatus())).count());
+        summary.put("rechazadas", appointments.stream().filter(a -> "RECHAZADA".equals(a.getStatus())).count());
     
-    return summary;
-}
+        return summary;
+    }
+
+    public void cambiarEstadoCita(UUID id, String nuevoEstado) {
+        AppointmentEntity appointment = appointmentRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+
+        appointment.setStatus(nuevoEstado);
+        appointmentRepository.save(appointment);
+
+        emailService.enviarNotificacionCita(
+            appointment.getClient().getEmail(),
+            appointment.getClient().getName(), 
+            nuevoEstado
+        );
+    }
 }

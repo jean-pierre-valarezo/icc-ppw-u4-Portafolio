@@ -76,9 +76,9 @@ public class AppointmentController {
 
     @GetMapping("/summary")
     public ResponseEntity<?> getSummary(@AuthenticationPrincipal UserEntity user) {
-    return ResponseEntity.ok(
-        appointmentService.getAppointmentSummary(user.getId())
-    );
-}
+        return ResponseEntity.ok(
+            appointmentService.getAppointmentSummary(user.getId())
+        );
+    }
 
 }
