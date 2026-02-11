@@ -81,4 +81,8 @@ public class AppointmentController {
         );
     }
 
+    @PutMapping("/{id}/status")
+    public ResponseEntity<AppointmentEntity> updateStatus(@PathVariable UUID id, @RequestBody String status) {
+        return ResponseEntity.ok(appointmentService.updateStatus(id, status));
+    }
 }

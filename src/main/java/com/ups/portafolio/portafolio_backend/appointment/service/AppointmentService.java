@@ -75,20 +75,33 @@ public class AppointmentService {
     }
 
     public AppointmentEntity updateStatus(UUID appointmentId, String newStatus) {
-        AppointmentEntity appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+    AppointmentEntity appointment = appointmentRepository.findById(appointmentId)
+            .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
 
-        appointment.setStatus(newStatus);
+    appointment.setStatus(newStatus);
 
-        if ("REJECTED".equalsIgnoreCase(newStatus)) {
-            ScheduleEntity schedule = appointment.getSchedule();
-            schedule.setStatus("AVAILABLE"); 
-            scheduleRepository.save(schedule);
-        }
-
-        return appointmentRepository.save(appointment);
+    if ("REJECTED".equalsIgnoreCase(newStatus)) {
+        ScheduleEntity schedule = appointment.getSchedule();
+        schedule.setStatus("AVAILABLE");
+        scheduleRepository.save(schedule);
     }
 
+    AppointmentEntity savedAppointment = appointmentRepository.save(appointment);
+
+    try {
+        if (appointment.getClient() != null) {
+            emailService.enviarNotificacionCita(
+                appointment.getClient().getEmail(),
+                appointment.getClient().getName(),
+                newStatus
+            );
+        }
+    } catch (Exception e) {
+        System.err.println("Error enviando correo: " + e.getMessage());
+    }
+
+    return savedAppointment;
+}
     public long countByProgrammerAndStatus(UUID programmerId, String status) {
         return appointmentRepository.countByProgrammerIdAndStatus(programmerId, status);
     }
