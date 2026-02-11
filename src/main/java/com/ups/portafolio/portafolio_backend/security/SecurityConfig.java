@@ -40,8 +40,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
         .requestMatchers(HttpMethod.GET, "/api/projects/**").permitAll() 
         .requestMatchers(HttpMethod.GET, "/api/schedules/**").permitAll() 
         .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
-        //.requestMatchers("/api/programmer/**").hasRole("PROGRAMMER") 
-        //.anyRequest().authenticated()
+        .requestMatchers("/api/appointments/**").permitAll()
         
         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
