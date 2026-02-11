@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
-
 import com.ups.portafolio.portafolio_backend.appointment.entity.AppointmentEntity;
 import com.ups.portafolio.portafolio_backend.appointment.repository.AppointmentRepository;
 import com.ups.portafolio.portafolio_backend.email.EmailService;
@@ -17,12 +16,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import com.lowagie.text.Document;
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
@@ -74,7 +71,8 @@ public class AppointmentService {
         return appointmentRepository.findByProgrammerId(programmerId);
     }
 
-    public AppointmentEntity updateStatus(UUID appointmentId, String newStatus) {
+public AppointmentEntity updateStatus(UUID appointmentId, String newStatus) {
+
     AppointmentEntity appointment = appointmentRepository.findById(appointmentId)
             .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
 
@@ -87,8 +85,16 @@ public class AppointmentService {
     }
 
     AppointmentEntity savedAppointment = appointmentRepository.save(appointment);
+
+    emailService.enviarNotificacionCita(
+            appointment.getClient().getEmail(),
+            appointment.getClient().getName(),
+            newStatus
+    );
+
     return savedAppointment;
 }
+
     public long countByProgrammerAndStatus(UUID programmerId, String status) {
         return appointmentRepository.countByProgrammerIdAndStatus(programmerId, status);
     }
@@ -160,19 +166,5 @@ public class AppointmentService {
         summary.put("rechazadas", appointments.stream().filter(a -> "RECHAZADA".equals(a.getStatus())).count());
     
         return summary;
-    }
-
-    public void cambiarEstadoCita(UUID id, String nuevoEstado) {
-        AppointmentEntity appointment = appointmentRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
-
-        appointment.setStatus(nuevoEstado);
-        appointmentRepository.save(appointment);
-
-        emailService.enviarNotificacionCita(
-            appointment.getClient().getEmail(),
-            appointment.getClient().getName(), 
-            nuevoEstado
-        );
     }
 }
