@@ -47,5 +47,10 @@ public class EmailService {
         } catch (Exception e) {
             System.err.println("Error al enviar el correo: " + e.getMessage());
         }
+
+        System.out.println("API KEY: " + apiKey);
+        System.out.println("SENDER EMAIL: " + senderEmail);
+        System.out.println("SENDER NAME: " + senderName);
+
     }
 }
