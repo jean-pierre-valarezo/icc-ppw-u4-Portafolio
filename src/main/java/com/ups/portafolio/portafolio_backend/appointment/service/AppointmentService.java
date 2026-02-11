@@ -37,7 +37,7 @@ public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final ScheduleRepository scheduleRepository;
     private final UserRepository userRepository;
-    private EmailService emailService;
+    private final EmailService emailService;
 
     @Transactional
     public AppointmentEntity bookAppointment(UUID scheduleId, UUID clientId, String topic) {
@@ -87,19 +87,6 @@ public class AppointmentService {
     }
 
     AppointmentEntity savedAppointment = appointmentRepository.save(appointment);
-
-    try {
-        if (appointment.getClient() != null) {
-            emailService.enviarNotificacionCita(
-                appointment.getClient().getEmail(),
-                appointment.getClient().getName(),
-                newStatus
-            );
-        }
-    } catch (Exception e) {
-        System.err.println("Error enviando correo: " + e.getMessage());
-    }
-
     return savedAppointment;
 }
     public long countByProgrammerAndStatus(UUID programmerId, String status) {
